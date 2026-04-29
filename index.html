@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Tools</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        // Safety net: block the browser's default "navigate to dropped file"
+        // behavior synchronously, before any module loads. Without this, a
+        // module-load failure would leave drops uncaught and the page would
+        // navigate to file:// of whatever was dropped.
+        addEventListener("dragover", (e) => e.preventDefault());
+        addEventListener("drop", (e) => e.preventDefault());
+    </script>
+    <script type="importmap">
+    {
+      "imports": {
+        "@anthropic-ai/sdk": "https://esm.sh/@anthropic-ai/sdk@0.65.0?bundle",
+        "marked":            "https://esm.sh/marked@14.1.3"
+      }
+    }
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Email Tools <span class="version">demo</span></h1>
+        <p class="subtitle">paste a client email &middot; get a sufficiency verdict and a draft response</p>
+    </header>
+
+    <section id="key-card" class="card">
+        <div class="card-head">
+            <h3>API key</h3>
+            <span class="muted micro">memory only &middot; cleared on reload</span>
+        </div>
+
+        <div id="key-load-area">
+            <div id="key-dropzone" class="dropzone">
+                <p class="dropzone-title"><strong>Drop your <code>key.json</code> file here</strong></p>
+                <p class="muted micro">expected format: <code>{"anthropic_api_key": "sk-ant-..."}</code></p>
+            </div>
+            <details class="key-paste-details">
+                <summary>or paste a key</summary>
+                <div class="key-paste-row">
+                    <textarea id="key-paste-input" rows="2"
+                              placeholder='sk-ant-... or {"anthropic_api_key": "sk-ant-..."}'></textarea>
+                    <button id="btn-use-key" class="primary">Use key</button>
+                </div>
+            </details>
+        </div>
+
+        <div id="key-status" class="key-status hidden">
+            <span class="badge pass">key loaded</span>
+            <span class="key-fp" id="key-fingerprint"></span>
+            <span class="extra-ctx-indicator hidden" id="extra-ctx-indicator"
+                  title="">bundle extras</span>
+            <button id="btn-clear-key" class="ghost micro">Clear key</button>
+        </div>
+    </section>
+
+    <section id="setup-bar" class="bar hidden">
+        <button id="btn-paste" class="primary">Paste email from clipboard</button>
+        <button id="btn-clear" class="ghost" disabled>Clear</button>
+        <span class="sep"></span>
+        <button id="btn-analyze" disabled>Analyze</button>
+        <span class="state-pill state-idle" id="state-pill">no email</span>
+        <span class="muted micro" id="status-line"></span>
+    </section>
+
+    <section id="email-card" class="card hidden">
+        <div class="card-head">
+            <h3>Pasted email</h3>
+            <span class="meta-target" id="email-meta"></span>
+        </div>
+        <div id="email-body" class="email-rendered"></div>
+    </section>
+
+    <section id="verdict-card" class="card hidden">
+        <div class="card-head">
+            <h3>Verdict</h3>
+            <span class="badge" id="verdict-badge"></span>
+            <span class="meta-target muted micro" id="verdict-meta"></span>
+        </div>
+
+        <div class="verdict-grid">
+            <div class="verdict-cell">
+                <h4>WHAT &mdash; design intent</h4>
+                <p id="verdict-what" class="cell-body"></p>
+                <span class="micro muted" id="verdict-what-conf"></span>
+            </div>
+            <div class="verdict-cell">
+                <h4>SOURCE &mdash; where the artwork lives</h4>
+                <p id="verdict-source" class="cell-body"></p>
+                <span class="micro muted" id="verdict-source-evidence"></span>
+            </div>
+        </div>
+
+        <div id="yellow-flags-block" class="hidden">
+            <h4>Yellow flags</h4>
+            <ul id="yellow-flags" class="flag-list"></ul>
+        </div>
+
+        <h4 class="draft-heading">
+            <span id="draft-kind-label">Draft</span>
+            <button id="btn-copy-draft" class="ghost micro">Copy</button>
+        </h4>
+        <pre id="verdict-draft" class="draft-body"></pre>
+
+        <p id="verdict-rationale" class="rationale"></p>
+    </section>
+
+    <section id="error-card" class="card error hidden">
+        <div class="card-head">
+            <h3>Error</h3>
+        </div>
+        <p id="error-message"></p>
+    </section>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
